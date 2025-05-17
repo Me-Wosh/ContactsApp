@@ -4,5 +4,5 @@ namespace ContactsApp.Backend.Services;
 
 public interface IAuthenticationService
 {
-    Task Login(UserDto userDto);
+    Task<IResult> Login(UserDto userDto);
 }

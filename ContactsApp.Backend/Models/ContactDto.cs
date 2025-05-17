@@ -1,5 +1,6 @@
 namespace ContactsApp.Backend.Models;
 
+// Contact class to be used across GET API calls
 public class ContactDto
 {
     public int Id { get; set; } // guid?

@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using ContactsApp.Backend.Data;
 using ContactsApp.Backend.Models;
 
@@ -13,8 +12,8 @@ public class AuthenticationService : IAuthenticationService
         _dbContext = dbContext;
     }
 
-    public async Task Login(UserDto userDto)
+    public async Task<IResult> Login(UserDto userDto)
     {
-        
+        return Results.Ok();
     }
 }

@@ -33,7 +33,8 @@ public class ContactsConfiguration : IEntityTypeConfiguration<Contact>
         
         builder
             .Property(c => c.PhoneNumber)
-            .HasMaxLength(9);
+            .HasMaxLength(9)
+            .IsFixedLength();
 
         builder.HasData(
             new Contact { Id = 1, FirstName = "Anna", LastName = "Kowalska", Email = "anna.kowalska92@gmail.com", PhoneNumber = "512345678", DateOfBirth = new DateOnly(1992, 5, 14), CategoryId = 1, SubCategoryId = 1 },
