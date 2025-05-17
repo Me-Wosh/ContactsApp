@@ -14,6 +14,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapContactsEndpoints();
+app.UseAuthorization();
+
+app.MapGroup("/contacts").MapContactsEndpoints();
+app.MapGroup("/auth").MapAuthenticationEndpoints();
 
 app.Run();

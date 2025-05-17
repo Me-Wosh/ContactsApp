@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace ContactsApp.Backend.Data;
 
 // Contact entity
