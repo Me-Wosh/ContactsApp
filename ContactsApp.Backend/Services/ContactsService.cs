@@ -1,6 +1,6 @@
 using AutoMapper;
 using ContactsApp.Backend.Data;
-using ContactsApp.Backend.Models;
+using ContactsApp.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace ContactsApp.Backend.Services;
@@ -18,11 +18,7 @@ public class ContactsService : IContactsService
     
     public async Task<IResult> GetAllContacts()
     {
-        List<Contact> contacts = await _dbContext
-            .Contacts
-            .Include(c => c.Category)
-            .Include(c => c.SubCategory)
-            .ToListAsync();
+        List<Contact> contacts = await _dbContext.Contacts.ToListAsync();
         
         var contactDtos = _mapper.Map<List<Contact>, List<ContactDto>>(contacts);
         
@@ -39,10 +35,10 @@ public class ContactsService : IContactsService
         
         if (contact == null)
         {
-            return Results.BadRequest($"Contact with given id '{id}' does not exist");
+            return Results.BadRequest($"Contact with given id '{id}' does not exist.");
         }
         
-        var contactDto = _mapper.Map<Contact, ContactDto>(contact);
+        var contactDto = _mapper.Map<Contact, ContactDetailsDto>(contact);
         
         return Results.Ok(contactDto);
     }
@@ -57,7 +53,7 @@ public class ContactsService : IContactsService
         // e-mail is not unique 
         if (email != null)
         {
-            return Results.BadRequest($"Contact with given e-mail '{email}' already exists");
+            return Results.BadRequest($"Contact with given e-mail '{email}' already exists.");
         }
         
         // check if subcategory exists, otherwise create one
@@ -109,6 +105,7 @@ public class ContactsService : IContactsService
         // check if subcategory exists, otherwise create one
         int? subCategoryId = await GetContactSubCategoryId(contactDto.SubCategoryName);
 
+        // update properties
         contact.FirstName = contactDto.FirstName;
         contact.LastName = contactDto.LastName;
         contact.Email = contactDto.Email;

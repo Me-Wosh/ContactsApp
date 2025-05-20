@@ -1,0 +1,132 @@
+@page "/ContactDetails/{Id:int}"
+
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+@inject JwtState JwtState
+
+<PageTitle>Contact details</PageTitle>
+
+<h3>Contact details</h3>
+
+@if (_networkError)
+{
+    <p style="color: red;">Failed to obtain contact. Please check your internet connection.</p>
+}
+
+@if (_responseError != null)
+{
+    <p style="color: red;">@_responseError</p>
+}
+
+@if (_contact == null)
+{
+    return;
+}
+
+<table>
+    <tr>
+        <th>Id</th>
+        <th>First name</th>
+        <th>Last name</th>
+        <th>E-mail</th>
+        <th>Phone number</th>
+        <th>Date of birth</th>
+        <th>Category</th>
+        
+        @if (_contact.SubCategoryName != null)
+        {
+            <th>Subcategory</th>
+        }
+        
+        <th colspan="2">Options</th>
+    </tr>
+    
+    <tr>
+        <td>@_contact.Id</td>
+        <td>@_contact.FirstName</td>
+        <td>@_contact.LastName</td>
+        <td>@_contact.Email</td>
+        <td>@_contact.PhoneNumber</td>
+        <td>@_contact.DateOfBirth</td>
+        <td>@_contact.CategoryName</td>
+        
+        @if (_contact.SubCategoryName != null)
+        {
+            <td>@_contact.SubCategoryName</td>
+        }
+        
+        <td><a href="/EditContact/@_contact.Id">Edit</a></td>
+        <td><button style="background-color: red;" @onclick="async() => await DeleteContact(_contact.Id)">Delete</button></td>
+    </tr>
+</table>
+
+@code 
+{
+    private ContactDetailsDto? _contact;
+    private bool _networkError;
+    private string? _responseError;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _networkError = false;
+            _responseError = null;
+
+            var response = await HttpClient.GetAsync($"/contacts/{Id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                _contact = (await response.Content.ReadFromJsonAsync<ContactDetailsDto>())!;
+                return;    
+            }
+            
+            _responseError = await response.Content.ReadAsStringAsync();
+        }
+
+        catch
+        {
+            _networkError = true;
+        }
+    }
+
+    [Parameter]
+    public int Id { get; set; }
+    
+    private async Task DeleteContact(int id)
+    {
+        try
+        {
+            _networkError = false;
+            _responseError = null;
+
+            if (JwtState.Jwt == null)
+            {
+                _responseError = "Not allowed. Please log in";
+                return;    
+            }
+            
+            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", JwtState.Jwt);
+            HttpResponseMessage response = await HttpClient.DeleteAsync($"contacts/{id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/");
+                return;
+            }
+            
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                _responseError = "Not allowed. Please log in";
+                return;
+            }
+
+            _responseError = await response.Content.ReadAsStringAsync();
+        }
+
+        catch
+        {
+            _networkError = true;
+        }
+    }
+}

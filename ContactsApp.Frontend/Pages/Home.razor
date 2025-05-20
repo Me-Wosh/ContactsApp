@@ -1,0 +1,109 @@
+﻿@page "/"
+
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+@inject JwtState JwtState
+
+<PageTitle>Home</PageTitle>
+
+<h1>Contacts</h1>
+
+@if (_networkError)
+{
+    <p style="color: red;">Failed to obtain contacts. Please check your internet connection.</p>
+    return;
+}
+
+@if (_responseError != null)
+{
+    <p style="color: red;">@_responseError</p>
+}
+
+<a href="/CreateContact">Create contact</a>
+
+@if (_contacts.Count == 0)
+{
+    return;
+}
+
+<table>
+    <tr>
+        <th>Id</th>
+        <th>First name</th>
+        <th>Last name</th>
+        <th>E-mail</th>
+        <th colspan="3">Options</th>
+    </tr>
+    
+    @foreach (ContactDto contact in _contacts)
+    {
+        <tr>
+            <td>@contact.Id</td>
+            <td>@contact.FirstName</td>
+            <td>@contact.LastName</td>
+            <td>@contact.Email</td>
+            <td><a href="/ContactDetails/@contact.Id">Details</a></td>
+            <td><a href="/EditContact/@contact.Id">Edit</a></td>
+            <td><button style="background-color: red;" @onclick="async() => await DeleteContact(contact)">Delete</button></td>
+        </tr>
+    }
+</table>
+
+
+@code
+{
+    private List<ContactDto> _contacts = [];
+    private bool _networkError;
+    private string? _responseError;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _networkError = false;
+            _contacts = (await HttpClient.GetFromJsonAsync<List<ContactDto>>("contacts"))!;
+        }
+
+        catch
+        {
+            _networkError = true;
+        }
+    }
+
+    private async Task DeleteContact(ContactDto contact)
+    {
+        try
+        {
+            _networkError = false;
+            _responseError = null;
+
+            if (JwtState.Jwt == null)
+            {
+                _responseError = "Not allowed. Please log in";
+                return;    
+            }
+            
+            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", JwtState.Jwt);
+            HttpResponseMessage response = await HttpClient.DeleteAsync($"contacts/{contact.Id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                _contacts.Remove(contact);
+                return;
+            }
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                _responseError = "Not allowed. Please log in";
+                return;
+            }
+
+            _responseError = await response.Content.ReadAsStringAsync();
+        }
+
+        catch
+        {
+            _networkError = true;
+        }
+    }
+}

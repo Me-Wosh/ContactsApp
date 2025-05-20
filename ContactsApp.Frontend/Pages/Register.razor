@@ -1,0 +1,68 @@
+@page "/Register"
+
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
+<h3>Register</h3>
+
+@if (_networkError)
+{
+    <p style="color: red;">@_networkError</p>
+}
+
+@if (_responseError != null)
+{
+    <p style="color: red;">@_responseError</p>
+}
+
+<EditForm Model="UserDto" OnValidSubmit="OnValidSubmit" id="edit-form">
+    <DataAnnotationsValidator />
+    <ValidationSummary/>
+    
+    <label>
+        E-mail:
+        <InputText @bind-Value="UserDto.Email"></InputText>
+    </label>
+
+    <label>
+        Password (at least 12 characters, one lowercase letter, one uppercase letter, one digit, one special character: &lt;&lt;space&gt;&gt;!&quot;#$%&amp;&apos;()*+,-./:;&lt;&gt;?@@[\]^_`{|}~):
+        <InputText type="@(_showPassword ? "text" : "password")" @bind-Value="UserDto.Password"></InputText>
+        <button type="button" @onclick="() => _showPassword = !_showPassword">Show password</button>
+    </label>
+
+    <input type="submit" value="Register" />
+</EditForm>
+
+@code 
+{
+    private bool _networkError;
+    private string? _responseError;
+    private bool _showPassword;
+    
+    [SupplyParameterFromForm]
+    private RegisterUserDto UserDto { get; set; } = new();
+
+    private async Task OnValidSubmit()
+    {
+        try
+        {
+            _networkError = false;
+            _responseError = null;
+
+            HttpResponseMessage response = await HttpClient.PostAsJsonAsync("auth/register", UserDto);
+
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/");
+                return;
+            }
+
+            _responseError = await response.Content.ReadAsStringAsync();
+        }
+        
+        catch
+        {
+            _networkError = true;
+        }
+    }
+}

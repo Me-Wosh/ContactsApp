@@ -1,0 +1,72 @@
+@page "/Login"
+
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+@inject JwtState JwtState
+
+<h3>Login</h3>
+
+@if (_networkError)
+{
+    <p style="color: red;">@_networkError</p>
+}
+
+@if (_responseError != null)
+{
+    <p style="color: red;">@_responseError</p>
+}
+
+<EditForm Model="UserDto" OnValidSubmit="OnValidSubmit" id="edit-form">
+    <DataAnnotationsValidator />
+    <ValidationSummary/>
+    
+    <label>
+        E-mail:
+        <InputText @bind-Value="UserDto.Email"></InputText>
+    </label>
+
+    <label>
+        Password:
+        <InputText type="@(_showPassword ? "text" : "password")" @bind-Value="UserDto.Password"></InputText>
+        <button type="button" @onclick="() => _showPassword = !_showPassword">Show password</button>
+    </label>
+
+    <input type="submit" value="Login" />
+</EditForm>
+
+@code 
+{
+    private bool _networkError;
+    private string? _responseError;
+    private bool _showPassword;
+    
+    [SupplyParameterFromForm]
+    private LoginUserDto UserDto { get; set; } = new();
+
+    private async Task OnValidSubmit()
+    {
+        _responseError = null;
+
+        try
+        {
+            _networkError = false;
+            _responseError = null;
+            
+            HttpResponseMessage response = await HttpClient.PostAsJsonAsync("auth/login", UserDto);
+
+            if (response.IsSuccessStatusCode)
+            {
+                JwtState.Jwt = (await response.Content.ReadAsStringAsync()).Trim('\"');
+                NavigationManager.NavigateTo("/");
+                return;
+            }
+
+            _responseError = await response.Content.ReadAsStringAsync();
+        }
+
+        catch
+        {
+            _networkError = true;
+        }
+    }
+}

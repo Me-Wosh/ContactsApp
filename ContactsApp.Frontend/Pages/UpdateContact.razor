@@ -1,0 +1,178 @@
+@page "/EditContact/{Id:int}"
+
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+@inject JwtState JwtState
+
+@if (_networkError)
+{
+    <p style="color: red;">Failed to edit contact. Please check your internet connection.</p>
+}
+
+@if (_responseError != null)
+{
+    <p style="color: red;">@_responseError</p>
+}
+
+<h3>Edit Contact</h3>
+
+<EditForm Model="Contact" OnValidSubmit="OnValidSubmit" id="edit-form">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    
+    <label>
+        First name:
+        <InputText @bind-Value="Contact.FirstName" placeholder="@Contact.FirstName"></InputText>
+    </label>
+    
+    <label>
+        Last name:
+        <InputText @bind-Value="Contact.LastName" placeholder="@Contact.LastName"></InputText>
+    </label>
+    
+    <label>
+        E-mail:
+        <InputText @bind-Value="Contact.Email" placeholder="@Contact.Email"></InputText>
+    </label>
+    
+    <label>
+        Phone number:
+        <InputText @bind-Value="Contact.PhoneNumber" placeholder="@Contact.PhoneNumber"></InputText>
+    </label>
+    
+    <label>
+        Date of birth:
+        <InputDate @bind-Value="Contact.DateOfBirth" placeholder="@Contact.DateOfBirth"></InputDate>
+    </label>
+    
+    <label>
+        Category:
+        <InputSelect @bind-Value="Contact.CategoryId" @bind-Value:after="ResetSubCategory">
+            <option value="1">Business</option>
+            <option value="2">Personal</option>
+            <option value="3">Other</option>
+        </InputSelect>
+    </label>
+
+    @switch (Contact.CategoryId)
+    {
+        case 1:
+            <label>
+                Subcategory:
+                <InputSelect @bind-Value="Contact.SubCategoryName">
+                    <option value="">Select subcategory</option>
+                    <option checked="@(Contact.SubCategoryName == "CEO")" value="CEO">CEO</option>
+                    <option checked="@(Contact.SubCategoryName == "Manager")" value="Manager">Manager</option>
+                    <option checked="@(Contact.SubCategoryName == "Coworker")" value="Coworker">Coworker</option>
+                    <option checked="@(Contact.SubCategoryName == "Client")" value="Client">Client</option>
+                </InputSelect>
+            </label>
+            break;
+            
+        case 3:
+            <label>
+                Subcategory:
+                <InputText @bind-Value="Contact.SubCategoryName"></InputText>
+            </label>
+            break;
+    }
+    
+    <input type="submit" value="Update"/>
+</EditForm>
+
+@code 
+{
+    private bool _networkError;
+    private string? _responseError;
+    
+    [SupplyParameterFromForm]
+    private UpdateContactDto Contact { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _networkError = false;
+            _responseError = null;
+            
+            if (JwtState.Jwt == null)
+            {
+                _responseError = "Not allowed. Please log in";
+                return;
+            }
+            
+            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", JwtState.Jwt);
+            HttpResponseMessage response = await HttpClient.GetAsync($"/contacts/{Id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                Contact = (await response.Content.ReadFromJsonAsync<UpdateContactDto>())!;
+                return;
+            }
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                _responseError = "Not allowed. Please log in";
+                return;
+            }
+            
+            _responseError = await response.Content.ReadAsStringAsync();
+        }
+        
+        catch
+        {
+            _networkError = true;
+        }
+    }
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private async Task OnValidSubmit()
+    {
+        try
+        {
+            _networkError = false;
+            _responseError = null;
+            
+            if (JwtState.Jwt == null)
+            {
+                _responseError = "Not allowed. Please log in";
+                return;
+            }
+            
+            if (Contact.CategoryId != 2 && Contact.SubCategoryName == null)
+            {
+                _responseError = "Subcategory cannot be empty.";
+                return;
+            }
+            
+            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", JwtState.Jwt);
+            HttpResponseMessage response = await HttpClient.PatchAsJsonAsync("/contacts", Contact);
+
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/");
+                return;
+            }
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                _responseError = "Not allowed. Please log in";
+                return;
+            }
+            
+            _responseError = await response.Content.ReadAsStringAsync();
+        }
+        
+        catch
+        {
+            _networkError = true;
+        }
+    }
+    
+    private void ResetSubCategory()
+    {
+        Contact.SubCategoryName = null;
+    }
+}

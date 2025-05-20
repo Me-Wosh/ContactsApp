@@ -1,5 +1,5 @@
-using ContactsApp.Backend.Models;
 using ContactsApp.Backend.Services;
+using ContactsApp.Shared;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ContactsApp.Backend.Endpoints;

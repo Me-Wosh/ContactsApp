@@ -4,19 +4,16 @@ using ContactsApp.Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace ContactsApp.Backend.Migrations
+namespace ContactsApp.Backend.Data.Migrations
 {
     [DbContext(typeof(ContactsDbContext))]
-    [Migration("20250517213459_RefreshToken")]
-    partial class RefreshToken
+    partial class ContactsDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -276,10 +273,9 @@ namespace ContactsApp.Backend.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RefreshToken")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("RefreshTokenExpirationDate")
+                    b.Property<DateTime?>("RefreshTokenExpirationDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");

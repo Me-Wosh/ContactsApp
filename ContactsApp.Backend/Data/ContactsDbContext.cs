@@ -8,13 +8,13 @@ public class ContactsDbContext : DbContext
 {
     public ContactsDbContext(DbContextOptions<ContactsDbContext> options) : base(options) { }
     
-    // Database Tables
+    // Database tables
     public DbSet<Contact> Contacts { get; set; }
     public DbSet<ContactCategory> ContactCategories { get; set; }
     public DbSet<ContactSubCategory> ContactSubCategories { get; set; }
     public DbSet<User> Users { get; set; }
 
-    // Tables settings
+    // Apply tables settings
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new ContactsConfiguration());

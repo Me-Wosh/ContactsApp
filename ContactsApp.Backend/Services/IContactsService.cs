@@ -1,4 +1,4 @@
-using ContactsApp.Backend.Models;
+using ContactsApp.Shared;
 
 namespace ContactsApp.Backend.Services;
 

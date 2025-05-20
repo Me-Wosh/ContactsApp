@@ -4,16 +4,19 @@ using ContactsApp.Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace ContactsApp.Backend.Migrations
+namespace ContactsApp.Backend.Data.Migrations
 {
     [DbContext(typeof(ContactsDbContext))]
-    partial class ContactsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250516220912_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace ContactsApp.Backend.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ContactsApp.Backend.Data.Contact", b =>
+            modelBuilder.Entity("Contacts.Data.Contact", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -54,8 +57,7 @@ namespace ContactsApp.Backend.Migrations
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasMaxLength(9)
-                        .HasColumnType("nchar(9)")
-                        .IsFixedLength();
+                        .HasColumnType("nvarchar(9)");
 
                     b.Property<int?>("SubCategoryId")
                         .HasColumnType("int");
@@ -180,7 +182,7 @@ namespace ContactsApp.Backend.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ContactsApp.Backend.Data.ContactCategory", b =>
+            modelBuilder.Entity("Contacts.Data.ContactCategory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -215,7 +217,7 @@ namespace ContactsApp.Backend.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ContactsApp.Backend.Data.ContactSubCategory", b =>
+            modelBuilder.Entity("Contacts.Data.ContactSubCategory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -255,7 +257,7 @@ namespace ContactsApp.Backend.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ContactsApp.Backend.Data.User", b =>
+            modelBuilder.Entity("Contacts.Data.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -272,27 +274,20 @@ namespace ContactsApp.Backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RefreshToken")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("RefreshTokenExpirationDate")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("Id");
 
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("ContactsApp.Backend.Data.Contact", b =>
+            modelBuilder.Entity("Contacts.Data.Contact", b =>
                 {
-                    b.HasOne("ContactsApp.Backend.Data.ContactCategory", "Category")
+                    b.HasOne("Contacts.Data.ContactCategory", "Category")
                         .WithMany("Contacts")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ContactsApp.Backend.Data.ContactSubCategory", "SubCategory")
+                    b.HasOne("Contacts.Data.ContactSubCategory", "SubCategory")
                         .WithMany("Contacts")
                         .HasForeignKey("SubCategoryId");
 
@@ -301,12 +296,12 @@ namespace ContactsApp.Backend.Migrations
                     b.Navigation("SubCategory");
                 });
 
-            modelBuilder.Entity("ContactsApp.Backend.Data.ContactCategory", b =>
+            modelBuilder.Entity("Contacts.Data.ContactCategory", b =>
                 {
                     b.Navigation("Contacts");
                 });
 
-            modelBuilder.Entity("ContactsApp.Backend.Data.ContactSubCategory", b =>
+            modelBuilder.Entity("Contacts.Data.ContactSubCategory", b =>
                 {
                     b.Navigation("Contacts");
                 });

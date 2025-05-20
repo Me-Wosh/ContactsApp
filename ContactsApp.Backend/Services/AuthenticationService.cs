@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using ContactsApp.Backend.Data;
-using ContactsApp.Backend.Models;
+using ContactsApp.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -30,7 +30,7 @@ public partial class AuthenticationService : IAuthenticationService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<IResult> Login(UserDto userDto)
+    public async Task<IResult> Login(LoginUserDto userDto)
     {
         User? user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Email == userDto.Email);
 
@@ -49,7 +49,7 @@ public partial class AuthenticationService : IAuthenticationService
         return Results.Ok(CreateJwt(user));
     }
     
-    public async Task<IResult> Register(UserDto userDto)
+    public async Task<IResult> Register(RegisterUserDto userDto)
     {
         string? email = _dbContext
             .Users
@@ -105,15 +105,15 @@ public partial class AuthenticationService : IAuthenticationService
         
         return Results.Ok(CreateJwt(user));
     }
-    
+
     private string CreateJwt(User user)
     {
         var claims = new List<Claim>
         {
-            new (ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new (ClaimTypes.Email, user.Email)
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new(ClaimTypes.Email, user.Email)
         };
-        
+
         var key = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_configuration.GetSection("JWT").GetSection("Secret").Value!));
 
@@ -129,7 +129,7 @@ public partial class AuthenticationService : IAuthenticationService
 
         return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
     }
-    
+
     private async Task CreateAndSaveRefreshToken(User user)
     {
         byte[] randomBytes = RandomNumberGenerator.GetBytes(256 / 8);

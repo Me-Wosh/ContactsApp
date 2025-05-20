@@ -16,6 +16,16 @@ public static class AppConfiguration
         builder.Services.AddOpenApi();
         builder.Services.AddAuthorization();
         builder.Services.AddHttpContextAccessor();
+        builder.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(
+                policy =>
+                {
+                    policy.WithOrigins("https://localhost:7045", "http://localhost:5218")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+        });
         
         // data services
         builder.Services.AddDbContext<ContactsDbContext>(options =>

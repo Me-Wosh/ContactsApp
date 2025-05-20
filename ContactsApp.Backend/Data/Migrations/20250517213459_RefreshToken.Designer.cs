@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace ContactsApp.Backend.Migrations
+namespace ContactsApp.Backend.Data.Migrations
 {
     [DbContext(typeof(ContactsDbContext))]
-    [Migration("20250517162527_PhoneNumberFixedLength")]
-    partial class PhoneNumberFixedLength
+    [Migration("20250517213459_RefreshToken")]
+    partial class RefreshToken
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -274,6 +274,13 @@ namespace ContactsApp.Backend.Migrations
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RefreshToken")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("RefreshTokenExpirationDate")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 

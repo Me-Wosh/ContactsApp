@@ -1,10 +1,10 @@
-using ContactsApp.Backend.Models;
+using ContactsApp.Shared;
 
 namespace ContactsApp.Backend.Services;
 
 public interface IAuthenticationService
 {
-    Task<IResult> Login(UserDto userDto);
-    Task<IResult> Register(UserDto userDto);
+    Task<IResult> Login(LoginUserDto userDto);
+    Task<IResult> Register(RegisterUserDto userDto);
     Task<IResult> RefreshTokens();
 }

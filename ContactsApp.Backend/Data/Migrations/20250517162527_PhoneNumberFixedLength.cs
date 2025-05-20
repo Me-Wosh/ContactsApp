@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace ContactsApp.Backend.Migrations
+namespace ContactsApp.Backend.Data.Migrations
 {
     /// <inheritdoc />
     public partial class PhoneNumberFixedLength : Migration

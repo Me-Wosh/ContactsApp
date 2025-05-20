@@ -14,6 +14,7 @@ public class PasswordHasher : IPasswordHasher
     
     public string Hash(string password)
     {
+        // generate cryptographically random salt
         byte[] salt = RandomNumberGenerator.GetBytes(SaltSize);
         byte[] hash = Rfc2898DeriveBytes.Pbkdf2(password, salt, Iterations, Algorithm, KeySize);
 
@@ -28,6 +29,7 @@ public class PasswordHasher : IPasswordHasher
 
         byte[] providedPasswordHash = Rfc2898DeriveBytes.Pbkdf2(providedPassword, salt, Iterations, Algorithm, KeySize);
 
+        // protection against timed attacks
         return CryptographicOperations.FixedTimeEquals(hash, providedPasswordHash);
     }
 }
